@@ -58,7 +58,8 @@ article {
   line-height: 1.6;
 }
 
-article h2, article h3 {
+article h2,
+article h3 {
   color: #d35400;
   margin-top: 1.6em;
 }
@@ -77,4 +78,42 @@ footer {
   color: #888;
   background: #fdf5e6;
   border-top: 1px solid #f8c471;
+}
+
+/* Floating navigation buttons on story pages */
+.nav-buttons {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.nav-buttons a {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 12px 16px;
+  background: #f5b041;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  pointer-events: auto;
+  transition: background 0.3s ease;
+}
+
+.nav-buttons a:hover {
+  background: #e59866;
+}
+
+.nav-buttons .prev-story {
+  left: 16px;
+}
+
+.nav-buttons .next-story {
+  right: 16px;
 }
