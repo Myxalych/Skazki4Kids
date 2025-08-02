@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
   <!-- Responsive design for mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Сказки для детей</title>
@@ -12,51 +12,70 @@
     <h1>Сказки для детей</h1>
     <p>Добро пожаловать! Выберите рассказ из списка ниже.</p>
   </header>
-  <!-- Story card grid -->
-  <div class="stories-grid">
-    <a class="story-card" href="stories/story1.html">
-      <img src="img/story1.png" alt="Тени из‑за горизонта" loading="lazy">
-      <h3>1. Тени из‑за горизонта</h3>
-    </a>
-    <a class="story-card" href="stories/story2.html">
-      <img src="img/story2.png" alt="Огненный шторм" loading="lazy">
-      <h3>2. Огненный шторм</h3>
-    </a>
-    <a class="story-card" href="stories/story3.html">
-      <img src="img/story3.png" alt="Шёпот в вихрях" loading="lazy">
-      <h3>3. Шёпот в вихрях</h3>
-    </a>
-    <a class="story-card" href="stories/story4.html">
-      <img src="img/story4.png" alt="Слёзы океанов" loading="lazy">
-      <h3>4. Слёзы океанов</h3>
-    </a>
-    <a class="story-card" href="stories/story5.html">
-      <img src="img/story5.png" alt="Четвёртая стихия" loading="lazy">
-      <h3>5. Четвёртая стихия</h3>
-    </a>
-    <a class="story-card" href="stories/story6.html">
-      <img src="img/story6.png" alt="Печати вакуума" loading="lazy">
-      <h3>6. Печати вакуума</h3>
-    </a>
-    <a class="story-card" href="stories/story7.html">
-      <img src="img/story7.png" alt="Кристалл обмана" loading="lazy">
-      <h3>7. Кристалл обмана</h3>
-    </a>
-    <a class="story-card" href="stories/story8.html">
-      <img src="img/story8.png" alt="След Материоса" loading="lazy">
-      <h3>8. След Материоса</h3>
-    </a>
-    <a class="story-card" href="stories/story9.html">
-      <img src="img/story9.png" alt="Падение Некрополиса" loading="lazy">
-      <h3>9. Падение Некрополиса</h3>
-    </a>
-    <a class="story-card" href="stories/story10.html">
-      <img src="img/story10.png" alt="Врата пустоты" loading="lazy">
-      <h3>10. Врата пустоты</h3>
-    </a>
-  </div>
+  <!-- Container for dynamic story cards -->
+  <div id="stories-container" class="stories-grid"></div>
   <footer>
     <p>Сайт создан с помощью агента ChatGPT.</p>
   </footer>
+  <script>
+    /*
+     * Динамическая загрузка списка рассказов.
+     * Мы получаем список файлов из директории `stories` репозитория через
+     * GitHub API, сортируем по номеру, читаем заголовок из каждого файла
+     * (первый заголовок h1) и создаём карточки. Это позволяет автоматизировать
+     * добавление новых историй: достаточно добавить новый файл storyX.html
+     * и соответствующее изображение storyX.png, чтобы он появился на главной.
+     */
+    async function loadStories() {
+      try {
+        const resp = await fetch('https://api.github.com/repos/Myxalych/Skazki4Kids/contents/stories');
+        if (!resp.ok) throw new Error('Не удалось загрузить список историй');
+        const files = await resp.json();
+        const container = document.getElementById('stories-container');
+        // отфильтровать HTML-файлы в формате storyX.html
+        const stories = files.filter(file => /^story\d+\.html$/.test(file.name));
+        // сортировка по номеру
+        stories.sort((a, b) => {
+          const numA = parseInt(a.name.match(/\d+/)[0]);
+          const numB = parseInt(b.name.match(/\d+/)[0]);
+          return numA - numB;
+        });
+        for (const story of stories) {
+          const num = parseInt(story.name.match(/\d+/)[0]);
+          // получить заголовок из файла
+          let title = `${num}. Рассказ`;
+          try {
+            const rawUrl = `https://raw.githubusercontent.com/Myxalych/Skazki4Kids/main/stories/${story.name}`;
+            const text = await (await fetch(rawUrl)).text();
+            const match = text.match(/<h1[^>]*>(.*?)<\/h1>/);
+            if (match) {
+              // заменить &nbsp; на пробелы
+              title = `${num}. ${match[1].replace(/&nbsp;/g, ' ')}`;
+            }
+          } catch (e) {
+            console.warn('Не удалось получить заголовок для', story.name);
+          }
+          // создать карточку
+          const a = document.createElement('a');
+          a.className = 'story-card';
+          a.href = `stories/${story.name}`;
+          const img = document.createElement('img');
+          img.src = `img/story${num}.png`;
+          img.alt = title;
+          img.loading = 'lazy';
+          const h3 = document.createElement('h3');
+          h3.textContent = title;
+          a.appendChild(img);
+          a.appendChild(h3);
+          container.appendChild(a);
+        }
+      } catch (err) {
+        console.error(err);
+        const container = document.getElementById('stories-container');
+        container.textContent = 'Ошибка загрузки списка историй.';
+      }
+    }
+    loadStories();
+  </script>
 </body>
 </html>
