@@ -89,5 +89,12 @@
     "file": "stories/story13.html",
     "img": "img/story13.png",
     "thumb": "img/thumb/story13.webp"
+  },
+  {
+    "num": 14,
+    "title": "Шестой модуль",
+    "file": "stories/story14.html",
+    "img": "img/story14.png",
+    "thumb": "img/thumb/story14.webp"
   }
 ]
