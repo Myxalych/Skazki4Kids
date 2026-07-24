@@ -76,35 +76,52 @@ user_prompt = f"""Вот краткое содержание предыдущи�
 
 
 def generate_answer(extra=""):
-    return client.models.generate_content(
+    resp = client.models.generate_content(
         model="gemini-flash-latest",
         contents=f"{system_prompt}\n\n{user_prompt}{extra}",
-        config=types.GenerateContentConfig(max_output_tokens=4096, temperature=0.9),
-    ).text
-
-
-def parse_story_body(answer):
-    tm = re.search(r"ТЕКСТ:\s*(.*)", answer, re.DOTALL)
-    return (tm.group(1).strip() if tm else answer)
-
-
-raw_answer = generate_answer()
-# Если модель выдала слишком короткий текст — одна повторная попытка подлиннее.
-if len(parse_story_body(raw_answer).split()) < int(target_words * 0.85):
-    print("Ответ короче целевого объёма — повторная генерация")
-    raw_answer = generate_answer(
-        f"\n\nВАЖНО: предыдущий вариант был слишком коротким. "
-        f"Напиши более развёрнутый рассказ объёмом не менее {target_words} слов."
+        # gemini-flash-latest — «думающая» модель, «мысли» тоже расходуют лимит
+        # токенов. Даём большой запас, чтобы рассказ не обрезался.
+        config=types.GenerateContentConfig(max_output_tokens=16384, temperature=0.9),
     )
+    finish = getattr(resp.candidates[0], "finish_reason", None) if resp.candidates else None
+    truncated = str(finish).upper().endswith("MAX_TOKENS")
+    return (resp.text or ""), truncated
 
-# Парсим ответ
-title_match = re.search(r"ЗАГОЛОВОК:\s*(.+)", raw_answer)
-title = title_match.group(1).strip() if title_match else f"Часть {next_num}"
 
-text_match = re.search(r"ТЕКСТ:\s*(.*)", raw_answer, re.DOTALL)
-story_body = text_match.group(1).strip() if text_match else raw_answer
+def parse_answer(answer):
+    tm = re.search(r"ЗАГОЛОВОК:\s*(.+)", answer)
+    parsed_title = tm.group(1).strip() if tm else None
+    bm = re.search(r"ТЕКСТ:\s*(.*)", answer, re.DOTALL)
+    parsed_body = (bm.group(1).strip() if bm else answer).strip()
+    return parsed_title, parsed_body
 
-paragraphs = [p.strip() for p in story_body.split("\n\n") if p.strip()]
+
+answer, truncated = generate_answer()
+title, story_body = parse_answer(answer)
+# Повторяем один раз, если текст обрезан по лимиту токенов или слишком короткий.
+# Оставляем самый длинный из вариантов, чтобы не потерять хороший ответ.
+if truncated or len(story_body.split()) < int(target_words * 0.85):
+    print("Ответ обрезан или короче целевого объёма — повторная генерация")
+    retry_answer, _ = generate_answer(
+        f"\n\nВАЖНО: предыдущий вариант получился неполным или слишком коротким. "
+        f"Напиши цельный, законченный рассказ объёмом {target_words}-{target_max} слов "
+        f"с ясной концовкой."
+    )
+    retry_title, retry_body = parse_answer(retry_answer)
+    if len(retry_body.split()) > len(story_body.split()):
+        story_body = retry_body
+        title = retry_title or title
+    else:
+        title = title or retry_title
+
+if not title:
+    title = f"Часть {next_num}"
+# Иногда модель добавляет к названию префикс «Часть N.» — убираем для чистоты.
+title = re.sub(r"^\s*Часть\s*\d+\s*[.:)\-—]*\s*", "", title).strip() or f"Часть {next_num}"
+
+# Разбиваем на абзацы по любым переводам строк — так реплики диалога
+# не слипаются в один абзац, даже если модель разделила их одиночным \n.
+paragraphs = [p.strip() for p in re.split(r"\n+", story_body) if p.strip()]
 html_paragraphs = "\n".join(f"    <p>{p}</p>" for p in paragraphs)
 
 print(f"Заголовок: {title}")
