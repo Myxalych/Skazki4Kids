@@ -99,28 +99,41 @@ img_path = IMAGES_DIR / f"story{next_num}.png"
 img_path.write_bytes(img_data)
 print(f"Картинка: {img_path}")
 
-# 5. Создаём HTML-файл рассказа
+# 5. Создаём HTML-файл рассказа (единый шаблон со стилизованными классами).
+# Кнопки «назад/вперёд» строятся динамически на клиенте (js/story-nav.js)
+# из stories.json, поэтому здесь только пустой контейнер — без жёстких ссылок.
 story_html = f"""<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1026">
   <title>{title}</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
+  <div class="nav-buttons"></div>
   <article class="story">
+    <nav class="story-nav"><a href="../index.html">&larr; Все сказки</a></nav>
     <h1>{title}</h1>
-    <img src="../img/story{next_num}.png" alt="{title}" class="story-image">
+    <img src="../img/story{next_num}.png" alt="{title}" class="story-image" loading="lazy" decoding="async">
 {html_paragraphs}
   </article>
-  <nav class="story-nav">
-    <a href="../index.html">&larr; Все сказки</a>
-  </nav>
+  <script src="../js/story-nav.js"></script>
 </body>
 </html>"""
 
 story_path = STORIES_DIR / f"story{next_num}.html"
 story_path.write_text(story_html, encoding="utf-8")
 print(f"Рассказ: {story_path}")
+
+# 6. Пересобираем манифест и миниатюры (используются главной страницей)
+try:
+    import build_manifest
+
+    build_manifest.build()
+    print("Манифест stories.json обновлён")
+except Exception as exc:  # pragma: no cover
+    print(f"Не удалось обновить манифест: {exc}")
+
 print(f"✅ Готово! Часть {next_num}: «{title}»")
