@@ -1,22 +1,15 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
   <!-- Responsive design for mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Шёпот в вихрях</title>
   <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/common.js" defer></script>
 </head>
-<body>
-  <header>
-    <h1>Шёпот в вихрях</h1>
-    <nav><a href="../index.html">← На главную</a></nav>
-  </header>
-  <div class="nav-buttons">
-    <a class="prev-story" href="story2.html">←</a>
-    <a class="next-story" href="story4.html">→</a>
-  </div>
-  <article>
+<body data-story data-prev="story2.html" data-next="story4.html">
+<article>
 <img src="../img/story3.png" alt="Шёпот в вихрях" loading="lazy">
     <p>Когда «Искра» вышла из гиперпрыжка, их встретила не тьма космоса, а бесконечное движение. Вся планета внизу напоминала гигантскую воронку: облака сплетались в спирали, ветры гудели так громко, что даже сквозь броню корабля было слышно низкое завывание.</p>
     <p>— Мир ветра, — тихо сказал Ветрос. — И он… не спокоен.</p>
@@ -69,8 +62,5 @@
 <h2>📜 Урок</h2>
     <p><strong>Не всегда нужно кричать.</strong> Иногда нужно замолчать и услышать — и тогда мир скажет тебе то, чего ты раньше не замечал.</p>
   </article>
-  <footer>
-    <p>Сайт создан с помощью агента ChatGPT.</p>
-  </footer>
 </body>
 </html>
