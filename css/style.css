@@ -1,147 +1,279 @@
 /*
- * Cosmic redesign for the children's stories site.
- * The new palette is dark and dreamy with starry backgrounds and
- * pastel accents reminiscent of a night sky.  Cards and content
- * areas float above the backdrop with semi‑transparent panels.
+ * Космическая тема для сайта детских сказок.
+ * Дизайн-токены (переменные), плавная типографика (clamp), адаптивная сетка,
+ * доступные состояния фокуса и поддержка prefers-reduced-motion.
  */
 
+:root {
+  --bg-deep: #0b1026;
+  --bg-mid: #141a3a;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-hover: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.14);
+  --text: #eef1ff;
+  --text-muted: #b7bce6;
+  --accent: #8b7cf6;
+  --accent-2: #4dd6c1;
+  --radius: 16px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-hover: 0 16px 36px rgba(0, 0, 0, 0.55);
+  --maxw: 1100px;
+  --space: clamp(1rem, 2.5vw, 2rem);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: "Verdana", sans-serif;
-  /* Full‑screen cosmic backdrop */
-  background: url('../img/background.png') no-repeat center center fixed;
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  background-color: var(--bg-deep);
+  background-image:
+    radial-gradient(1200px 600px at 20% -10%, rgba(139, 124, 246, 0.35), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(77, 214, 193, 0.18), transparent 55%),
+    image-set(url('../img/background.webp') type('image/webp'), url('../img/background.png') type('image/png'));
+  background-repeat: no-repeat;
+  background-position: center top;
   background-size: cover;
-  color: #f5f5f5;
-  margin: 0;
-  padding: 0;
+  background-attachment: fixed;
 }
 
-header {
+/* ---------- Header ---------- */
+.site-header {
   text-align: center;
-  padding: 60px 20px;
-  background: rgba(0, 0, 0, 0.5);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+  padding: clamp(2.5rem, 8vw, 5rem) var(--space) clamp(2rem, 5vw, 3rem);
+  background: linear-gradient(180deg, rgba(11, 16, 38, 0.72), rgba(11, 16, 38, 0.35));
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(6px);
 }
 
-header h1 {
+.site-header__title {
   margin: 0;
-  font-size: 3rem;
-  color: #ffffff;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #ffffff, var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-header p {
-  margin-top: 12px;
-  font-size: 1.2rem;
-  color: #c9c9ff;
+.site-header__subtitle {
+  margin: 0.75rem auto 0;
+  max-width: 42ch;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: var(--text-muted);
 }
 
-/* Hide the old vertical list navigation; it will be replaced by a card grid */
-nav ul {
-  display: none;
-}
-
-/* Grid container for story cards on the index page */
+/* ---------- Grid ---------- */
 .stories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 0 20px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space);
+  max-width: var(--maxw);
+  margin: clamp(2rem, 5vw, 3.5rem) auto;
+  padding: 0 var(--space);
 }
 
 .story-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   text-decoration: none;
   color: inherit;
-  transition: transform 0.3s ease;
+  box-shadow: var(--shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-.story-card:hover {
-  transform: translateY(-5px);
+.story-card:hover,
+.story-card:focus-visible {
+  transform: translateY(-6px);
+  background: var(--surface-hover);
+  box-shadow: var(--shadow-hover);
 }
 
-.story-card img {
+.story-card:focus-visible {
+  outline: 3px solid var(--accent-2);
+  outline-offset: 3px;
+}
+
+.story-card__img {
   width: 100%;
-  height: 140px;
+  aspect-ratio: 16 / 10;
+  height: auto;
   object-fit: cover;
   display: block;
+  background: var(--bg-mid);
 }
 
-.story-card h3 {
-  margin: 15px;
-  font-size: 1.1rem;
-  color: #ffffff;
+.story-card__title {
+  margin: 0;
+  padding: 1rem 1.1rem 1.2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
 }
 
-article {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 40px;
-  line-height: 1.7;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
+/* Скелетоны загрузки */
+.story-card--skeleton {
+  min-height: 240px;
+  border-style: dashed;
+  background: linear-gradient(100deg, var(--surface) 30%, var(--surface-hover) 50%, var(--surface) 70%);
+  background-size: 200% 100%;
+  animation: skeleton 1.3s ease-in-out infinite;
+}
+
+@keyframes skeleton {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.stories-error {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem;
+}
+
+/* ---------- Story page ---------- */
+/* Заголовок на страницах рассказов 1–12 (без класса .site-header). */
+body > header:not(.site-header) {
+  max-width: 760px;
+  margin: clamp(2rem, 5vw, 3rem) auto 0;
+  padding: 0 var(--space);
+  text-align: center;
+}
+
+body > header:not(.site-header) h1 {
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  line-height: 1.15;
+}
+
+body > header:not(.site-header) nav a {
+  color: var(--accent-2);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+body > header:not(.site-header) nav a:hover {
+  text-decoration: underline;
+}
+
+article,
+.story {
+  max-width: 760px;
+  margin: clamp(2rem, 5vw, 3rem) auto;
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+  line-height: 1.75;
+  font-size: 1.075rem;
+  background: rgba(11, 16, 38, 0.72);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(4px);
+}
+
+article h1,
+.story h1 {
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  line-height: 1.15;
+  margin-top: 0;
 }
 
 article h2,
-article h3 {
-  color: #9b59b6;
-  margin-top: 1.6em;
+article h3,
+.story h2,
+.story h3 {
+  color: var(--accent);
+  margin-top: 1.8em;
 }
 
-article img {
+article img,
+.story-image,
+.end-illustration {
   width: 100%;
-  max-width: 100%;
-  border-radius: 12px;
-  margin: 20px 0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  height: auto;
+  border-radius: var(--radius);
+  margin: 1.5rem 0;
+  box-shadow: var(--shadow);
 }
 
-footer {
+.story-nav {
+  max-width: 760px;
+  margin: 0 auto clamp(2rem, 5vw, 3rem);
+  padding: 0 var(--space);
+}
+
+.story-nav a {
+  color: var(--accent-2);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.story-nav a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
   text-align: center;
-  padding: 20px;
+  padding: 1.5rem var(--space);
   font-size: 0.85rem;
-  color: #bbbbff;
-  background: rgba(0, 0, 0, 0.5);
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-muted);
+  background: rgba(11, 16, 38, 0.6);
+  border-top: 1px solid var(--border);
 }
 
-/* Floating navigation buttons on story pages */
-.nav-buttons {
-  position: fixed;
-  top: 50%;
-  left: 0;
-  right: 0;
-  pointer-events: none;
-  z-index: 1000;
-}
-
+/* ---------- Floating prev/next (story pages 1–12) ---------- */
 .nav-buttons a {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  padding: 14px 18px;
-  background: #1abc9c;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  background: var(--accent);
   color: #fff;
   border-radius: 50%;
-  font-size: 1.6rem;
-  line-height: 1;
+  font-size: 1.5rem;
   text-decoration: none;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  pointer-events: auto;
-  transition: background 0.3s ease;
+  box-shadow: var(--shadow);
+  z-index: 1000;
+  transition: background 0.25s ease, transform 0.25s ease;
 }
 
 .nav-buttons a:hover {
-  background: #16a085;
+  background: var(--accent-2);
+  color: var(--bg-deep);
 }
 
-.nav-buttons .prev-story {
-  left: 16px;
+.nav-buttons a:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
 }
 
-.nav-buttons .next-story {
-  right: 16px;
+.nav-buttons .prev-story { left: 16px; }
+.nav-buttons .next-story { right: 16px; }
+
+/* ---------- Motion preferences ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
