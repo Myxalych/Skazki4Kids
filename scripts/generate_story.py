@@ -4,6 +4,7 @@ import requests
 import urllib.parse
 from pathlib import Path
 from google import genai
+from google.genai import types
 
 client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 STORIES_DIR = Path("stories")
@@ -21,22 +22,31 @@ for f in existing:
 next_num = max(numbers) + 1 if numbers else 1
 print(f"Генерируем: story{next_num}.html")
 
-# 2. Читаем ВСЕ предыдущие рассказы (для связи сюжета)
+# 2. Читаем ВСЕ предыдущие рассказы (для связи сюжета) и считаем их объём
 all_stories_text = []
+word_counts = []
 for num in sorted(numbers):
     fpath = STORIES_DIR / f"story{num}.html"
     if fpath.exists():
         raw = fpath.read_text(encoding="utf-8")
-        body = re.search(r"<body[^>]*>(.*?)</body>", raw, re.DOTALL)
+        body = re.search(r"<article[^>]*>(.*?)</article>", raw, re.DOTALL) or re.search(
+            r"<body[^>]*>(.*?)</body>", raw, re.DOTALL
+        )
         if body:
             clean = re.sub(r"<[^>]+>", " ", body.group(1))
             clean = re.sub(r"\s+", " ", clean).strip()
             all_stories_text.append(f"[Часть {num}]: {clean[:800]}")
+            word_counts.append(len(clean.split()))
 
 context = "\n\n".join(all_stories_text[-10:])
 
+# Целевой объём — как у предыдущих частей (в среднем, но не короче).
+target_words = max(500, round(sum(word_counts) / len(word_counts))) if word_counts else 550
+target_max = target_words + 150
+print(f"Целевой объём: ~{target_words}-{target_max} слов")
+
 # 3. Генерируем текст в стиле Стругацких и Азимова
-system_prompt = """Ты — писатель-фантаст, работающий в стиле ранних 
+system_prompt = f"""Ты — писатель-фантаст, работающий в стиле ранних 
 Стругацких («Страна багровых туч», «Путь на Амальтею», «Стажёры») 
 и Айзека Азимова («Я, робот», цикл о Foundation). 
 
@@ -48,7 +58,7 @@ system_prompt = """Ты — писатель-фантаст, работающи�
 - Никакого насилия, жестокости, безысходности.
 - Юмор и ирония — как у Стругацких.
 - Научная достоверность на уровне, понятном 12-летнему.
-- Объём: 400–600 слов.
+- Объём: {target_words}–{target_max} слов — не короче предыдущих частей.
 - Заканчивай на интригующем вопросе или открытии.
 
 Формат ответа СТРОГО:
@@ -61,13 +71,31 @@ user_prompt = f"""Вот краткое содержание предыдущи�
 
 Напиши ПРОДОЛЖЕНИЕ — часть {next_num}. 
 Обязательно свяжи с предыдущими событиями. 
+Объём — не менее {target_words} слов, как в предыдущих частях, не сокращай. 
 Верни ответ в указанном формате."""
 
-response = client.models.generate_content(
-    model="gemini-flash-latest",
-    contents=f"{system_prompt}\n\n{user_prompt}",
-)
-raw_answer = response.text
+
+def generate_answer(extra=""):
+    return client.models.generate_content(
+        model="gemini-flash-latest",
+        contents=f"{system_prompt}\n\n{user_prompt}{extra}",
+        config=types.GenerateContentConfig(max_output_tokens=4096, temperature=0.9),
+    ).text
+
+
+def parse_story_body(answer):
+    tm = re.search(r"ТЕКСТ:\s*(.*)", answer, re.DOTALL)
+    return (tm.group(1).strip() if tm else answer)
+
+
+raw_answer = generate_answer()
+# Если модель выдала слишком короткий текст — одна повторная попытка подлиннее.
+if len(parse_story_body(raw_answer).split()) < int(target_words * 0.85):
+    print("Ответ короче целевого объёма — повторная генерация")
+    raw_answer = generate_answer(
+        f"\n\nВАЖНО: предыдущий вариант был слишком коротким. "
+        f"Напиши более развёрнутый рассказ объёмом не менее {target_words} слов."
+    )
 
 # Парсим ответ
 title_match = re.search(r"ЗАГОЛОВОК:\s*(.+)", raw_answer)
