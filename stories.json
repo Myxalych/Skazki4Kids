@@ -1,0 +1,93 @@
+[
+  {
+    "num": 1,
+    "title": "Тени из‑за горизонта",
+    "file": "stories/story1.html",
+    "img": "img/story1.png",
+    "thumb": "img/thumb/story1.webp"
+  },
+  {
+    "num": 2,
+    "title": "Огненный шторм",
+    "file": "stories/story2.html",
+    "img": "img/story2.png",
+    "thumb": "img/thumb/story2.webp"
+  },
+  {
+    "num": 3,
+    "title": "Шёпот в вихрях",
+    "file": "stories/story3.html",
+    "img": "img/story3.png",
+    "thumb": "img/thumb/story3.webp"
+  },
+  {
+    "num": 4,
+    "title": "Слёзы океанов",
+    "file": "stories/story4.html",
+    "img": "img/story4.png",
+    "thumb": "img/thumb/story4.webp"
+  },
+  {
+    "num": 5,
+    "title": "Четвёртая стихия",
+    "file": "stories/story5.html",
+    "img": "img/story5.png",
+    "thumb": "img/thumb/story5.webp"
+  },
+  {
+    "num": 6,
+    "title": "Печати вакуума",
+    "file": "stories/story6.html",
+    "img": "img/story6.png",
+    "thumb": "img/thumb/story6.webp"
+  },
+  {
+    "num": 7,
+    "title": "Кристалл обмана",
+    "file": "stories/story7.html",
+    "img": "img/story7.png",
+    "thumb": "img/thumb/story7.webp"
+  },
+  {
+    "num": 8,
+    "title": "След Материоса",
+    "file": "stories/story8.html",
+    "img": "img/story8.png",
+    "thumb": "img/thumb/story8.webp"
+  },
+  {
+    "num": 9,
+    "title": "Падение Некрополиса",
+    "file": "stories/story9.html",
+    "img": "img/story9.png",
+    "thumb": "img/thumb/story9.webp"
+  },
+  {
+    "num": 10,
+    "title": "Врата пустоты",
+    "file": "stories/story10.html",
+    "img": "img/story10.png",
+    "thumb": "img/thumb/story10.webp"
+  },
+  {
+    "num": 11,
+    "title": "Эхо времени",
+    "file": "stories/story11.html",
+    "img": "img/story11.png",
+    "thumb": "img/thumb/story11.webp"
+  },
+  {
+    "num": 12,
+    "title": "Импульс гармонии",
+    "file": "stories/story12.html",
+    "img": "img/story12.png",
+    "thumb": "img/thumb/story12.webp"
+  },
+  {
+    "num": 13,
+    "title": "Ключ Архитектора",
+    "file": "stories/story13.html",
+    "img": "img/story13.png",
+    "thumb": "img/thumb/story13.webp"
+  }
+]
