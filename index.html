@@ -27,11 +27,20 @@
      * и соответствующее изображение storyX.png, чтобы он появился на главной.
      */
     async function loadStories() {
+      const container = document.getElementById('stories-container');
+      if (!container) {
+        console.error('Не найден контейнер #stories-container.');
+        return;
+      }
       try {
         const resp = await fetch('https://api.github.com/repos/Myxalych/Skazki4Kids/contents/stories');
-        if (!resp.ok) throw new Error('Не удалось загрузить список историй');
+        if (!resp.ok) {
+          const detail = resp.status === 403
+            ? 'превышен лимит запросов к GitHub API'
+            : `HTTP ${resp.status} ${resp.statusText}`;
+          throw new Error(`Не удалось загрузить список историй (${detail}).`);
+        }
         const files = await resp.json();
-        const container = document.getElementById('stories-container');
         // отфильтровать HTML-файлы в формате storyX.html
         const stories = files.filter(file => /^story\d+\.html$/.test(file.name));
         // сортировка по номеру
@@ -46,14 +55,18 @@
           let title = `${num}. Рассказ`;
           try {
             const rawUrl = `https://raw.githubusercontent.com/Myxalych/Skazki4Kids/main/stories/${story.name}`;
-            const text = await (await fetch(rawUrl)).text();
+            const titleResp = await fetch(rawUrl);
+            if (!titleResp.ok) {
+              throw new Error(`HTTP ${titleResp.status} ${titleResp.statusText}`);
+            }
+            const text = await titleResp.text();
             const match = text.match(/<h1[^>]*>(.*?)<\/h1>/);
             if (match) {
               // заменить &nbsp; на пробелы
               title = `${num}. ${match[1].replace(/&nbsp;/g, ' ')}`;
             }
           } catch (e) {
-            console.warn('Не удалось получить заголовок для', story.name);
+            console.warn('Не удалось получить заголовок для', story.name, e);
           }
           // создать карточку
           const a = document.createElement('a');
@@ -63,6 +76,10 @@
           img.src = `img/story${num}.png`;
           img.alt = title;
           img.loading = 'lazy';
+          img.addEventListener('error', () => {
+            console.warn('Не удалось загрузить изображение для', story.name);
+            img.remove();
+          });
           const h3 = document.createElement('h3');
           h3.textContent = title;
           a.appendChild(img);
@@ -71,11 +88,12 @@
         }
       } catch (err) {
         console.error(err);
-        const container = document.getElementById('stories-container');
-        container.textContent = 'Ошибка загрузки списка историй.';
+        container.textContent = err && err.message
+          ? `Ошибка загрузки списка историй: ${err.message}`
+          : 'Ошибка загрузки списка историй.';
       }
     }
-    loadStories();
+    loadStories().catch(err => console.error('Непредвиденная ошибка загрузки историй:', err));
   </script>
 </body>
 </html>
