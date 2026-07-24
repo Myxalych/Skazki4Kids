@@ -64,7 +64,7 @@ user_prompt = f"""Вот краткое содержание предыдущи�
 Верни ответ в указанном формате."""
 
 response = client.models.generate_content(
-    model="gemini-2.0-flash",
+    model="gemini-flash-latest",
     contents=f"{system_prompt}\n\n{user_prompt}",
 )
 raw_answer = response.text
