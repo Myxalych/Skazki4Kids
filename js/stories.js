@@ -75,6 +75,13 @@
     img.decoding = 'async';
     img.width = 480;
     img.height = 300;
+    img.addEventListener('error', function () {
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn('Не удалось загрузить изображение:', img.src);
+      }
+      a.classList.add('story-card--no-img');
+      if (img.parentNode) img.parentNode.removeChild(img);
+    });
 
     var h3 = doc.createElement('h3');
     h3.className = 'story-card__title';
@@ -117,13 +124,19 @@
           return chain.then(function (acc) {
             return fetchFn(RAW_BASE + 'story' + num + '.html')
               .then(function (r) {
+                if (!r.ok) {
+                  throw new Error('HTTP ' + r.status + ' для story' + num + '.html');
+                }
                 return r.text();
               })
               .then(function (text) {
                 acc.push({ num: num, title: extractTitle(text, num) });
                 return acc;
               })
-              .catch(function () {
+              .catch(function (err) {
+                if (typeof console !== 'undefined' && console.warn) {
+                  console.warn('Не удалось получить заголовок для story' + num + '.html:', err);
+                }
                 acc.push({ num: num, title: num + '. Рассказ' });
                 return acc;
               });
@@ -140,7 +153,16 @@
     deps = deps || {};
     var fetchFn = deps.fetch || (typeof fetch !== 'undefined' ? fetch : null);
     var doc = deps.document || (typeof document !== 'undefined' ? document : null);
+    if (!fetchFn || !doc) {
+      return Promise.reject(new Error('loadStories: требуются fetch и document.'));
+    }
     var container = doc.getElementById('stories-container');
+    if (!container) {
+      if (typeof console !== 'undefined' && console.error) {
+        console.error('Не найден контейнер #stories-container.');
+      }
+      return Promise.resolve();
+    }
 
     return fetchFn(MANIFEST_URL)
       .then(function (resp) {
