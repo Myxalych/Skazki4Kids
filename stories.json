@@ -96,5 +96,12 @@
     "file": "stories/story14.html",
     "img": "img/story14.png",
     "thumb": "img/thumb/story14.webp"
+  },
+  {
+    "num": 15,
+    "title": "Код Созидания",
+    "file": "stories/story15.html",
+    "img": "img/story15.png",
+    "thumb": "img/thumb/story15.webp"
   }
 ]
