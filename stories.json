@@ -103,5 +103,12 @@
     "file": "stories/story15.html",
     "img": "img/story15.png",
     "thumb": "img/thumb/story15.webp"
+  },
+  {
+    "num": 16,
+    "title": "Кузнечный Горн Архитекторов",
+    "file": "stories/story16.html",
+    "img": "img/story16.png",
+    "thumb": "img/thumb/story16.webp"
   }
 ]
